@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="sort.js"></script>
+        <style>
+            .block{
+                position: relative;
+            }
+        </style>
+    </head>
+    <body>
+        <p id="arraysize">Array Size:</p>
+        <input type="range" id="size" min="1" max="300">
+        <br>
+        <p id="valuerange">Value Range:</p>
+        <input type="range" id="num" min="1" max="300">
+        <br>
+        <button id="build">Generate Array</button>
+        <div id="workspace" style="width: 100%; display: flex;">
+        </div>
+        <select id="sortmethod">
+            <option value="selection">selection sort</option>
+            <option value="insertion">insertion sort</option>
+            <option value="bubble">bubble sort</option>
+            <option value="merge">merge sort</option>
+        </select>
+        <button id="sort">sort</button>
+    </body>
+</html>
