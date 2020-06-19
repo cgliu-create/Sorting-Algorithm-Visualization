@@ -58,7 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
             let steps = insertionsort();
             animate(steps);
         }
-        if (sort_method == "bubble"){ alert("moo");}
+        if (sort_method == "bubble"){ 
+            let steps = bubblesort();
+            animate(steps);
+        }
         if (sort_method == "merge"){ alert("moo");}
     };
     document.querySelector('#clear').onclick = function(){
@@ -137,8 +140,8 @@ function selectionsort(){
         let min_index = index; 
         for (let subindex = index+1; subindex < length; subindex++) {
             /* snapshot */
-                let focusa = [index, subindex];
-                let focusb = [min_index];
+                let focusa = [index, min_index];
+                let focusb = [subindex];
                 let data = new Array();
                 for (const num of thearray) { data.push(num);}
                 let snapshot = new Frame(data, focusa, focusb);
@@ -179,6 +182,33 @@ function insertionsort(){
         } 
         thearray[testindex + 1] = valueinquestion; 
     } 
+    frames.push(new Frame(thearray, [], []))
+    return frames;
+}
+
+function bubblesort(){
+    var frames = [];
+    // bubble sort algorithm
+    let length = thearray.length;
+    // moves boundary of unsorted subarray 
+    for (let index = 0; index < length-1; index++){
+        for (let subindex = 0; subindex < length-index-1; subindex++) {
+            /* snapshot */
+            let focusa = [length-index-1, subindex+1];
+            let focusb = [subindex];
+            let data = new Array();
+            for (const num of thearray) { data.push(num);}
+            let snapshot = new Frame(data, focusa, focusb);
+            frames.push(snapshot);
+            /* snapshot */
+            // larger values bubble up and out of the subarray 
+            if(thearray[subindex] > thearray[subindex+1]){
+                temp = thearray[subindex];
+                thearray[subindex] = thearray[subindex+1];
+                thearray[subindex+1] = temp;
+            }
+        }
+    }
     frames.push(new Frame(thearray, [], []))
     return frames;
 }
