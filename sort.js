@@ -28,6 +28,197 @@ function generateArray(){
     max = getMax();
 }
 
+// model display 
+function clearWorkSpace(){
+    let workspace = document.getElementById("workspace");
+    while (workspace.firstChild) {
+        workspace.removeChild(workspace.lastChild);
+    }
+}
+function addBlock(num, color, id) {
+    let block = document.createElement("div");
+    block.className = "block";
+    block.id = "b"+id;
+    block.style.backgroundColor = color;
+    block.style.width = "5px";
+    block.style.height = num+5+"px";
+    let pos = max - num;
+    block.style.top = pos+"px";
+    document.getElementById("workspace").appendChild(block);
+};
+function displayData(data){
+    clearWorkSpace()
+    for (let index = 0; index < data.length; index++) {
+        addBlock(data[index], "lightblue", index);
+    }
+}
+
+// animation
+class Frame {
+    constructor(data, highlighted) {
+        this.data = data;
+        this.highlighted = highlighted;
+    }
+}
+function highlight(id, color){
+    document.getElementById(id).style.backgroundColor = color;
+}
+function animate(frames){
+    var frame = 0;
+    var id = setInterval(event, 10);
+    function event(){
+        if (frame == frames.length || override) {
+            clearInterval(id);
+            alert("done");
+        } else {
+            content = frames[frame];
+            displayData(content.data);
+            for (const num of content.highlighted) {
+                highlight("b"+num, "red");
+            }
+            frame += 1;
+        }
+    }
+}
+// sorting algorithms
+// return multiple arrays representing a frame/step 
+
+function selectionsort(){ 
+    var frames = [];
+    // selection sort algorithm
+    let length = thearray.length;
+    //moves boundary of unsorted subarray 
+    for (let index = 0; index < length; index++){ 
+        // finds the min in unsorted array 
+        let min_index = index; 
+        for (let subindex = index+1; subindex < length; subindex++) {
+            /* snapshot */
+                let focus = [index, min_index, subindex];
+                let data = new Array();
+                for (const num of thearray) { data.push(num);}
+                let snapshot = new Frame(data, focus);
+                frames.push(snapshot);
+            /* snapshot */
+            if (thearray[subindex] < thearray[min_index]) 
+                min_index = subindex;    
+        }
+        // swaps the found minimum with first element of the unsorted subarray 
+        temp = thearray[min_index];
+        thearray[min_index] = thearray[index];
+        thearray[index] = temp;
+    } 
+    frames.push(new Frame(thearray, []))
+    return frames;
+}
+
+function insertionsort(){
+    var frames = [];
+    // insertion sort algorithm
+    let length = thearray.length;
+    // moves boundary of unsorted subarray 
+    for (let index = 1; index < length; index++){ 
+        // moves elements before in front until the end is reached or a lower value if found
+        let valueinquestion = thearray[index];
+        let testindex = index;
+        while (testindex > 0 && thearray[testindex -1] > valueinquestion) { 
+            /* snapshot */
+            let focus = [index, testindex, testindex-1];
+            let data = new Array();
+            for (const num of thearray) { data.push(num);}
+            let snapshot = new Frame(data, focus);
+            frames.push(snapshot);
+            /* snapshot */
+            thearray[testindex] = thearray[testindex-1]; 
+            testindex -= 1;
+        } 
+        thearray[testindex] = valueinquestion; 
+    } 
+    frames.push(new Frame(thearray, []))
+    return frames;
+}
+
+function bubblesort(){
+    var frames = [];
+    // bubble sort algorithm
+    let length = thearray.length;
+    // moves boundary of unsorted subarray 
+    for (let index = 0; index < length-1; index++){
+        for (let subindex = 0; subindex < length-index-1; subindex++) {
+            /* snapshot */
+            let focus = [length-index-1, subindex, subindex+1];
+            let data = new Array();
+            for (const num of thearray) { data.push(num);}
+            let snapshot = new Frame(data, focus);
+            frames.push(snapshot);
+            /* snapshot */
+            // larger values bubble up and out of the subarray 
+            if(thearray[subindex] > thearray[subindex+1]){
+                temp = thearray[subindex];
+                thearray[subindex] = thearray[subindex+1];
+                thearray[subindex+1] = temp;
+            }
+        }
+    }
+    frames.push(new Frame(thearray, []))
+    return frames;
+}
+
+var msframes = [];
+
+function mergesort(){
+    msframes = []
+    let length = thearray.length;
+    let temp = new Array(length);
+    sorthelper(0, length-1, temp);
+    msframes.push(new Frame(thearray, []));
+    return msframes;
+}
+// divides items into two adjacent parts
+// recursively sorts each part
+function sorthelper(from, to, temp){
+    if( from < to){
+        let middle = Math.floor((from+to)/2);
+        sorthelper(from, middle, temp);
+        sorthelper(middle+1, to, temp);
+        mergehelper(from, middle, to, temp);
+    }
+}
+// merges two parts into sorted order
+function mergehelper(from, middle, to, temp){
+    let i = from;
+    let j = middle + 1;
+    let k = from;
+    while(i <= middle && j <= to){
+        if(thearray[i] < thearray[j]){
+            temp[k] = thearray[i];
+            i+=1;
+        }else{
+            temp[k] = thearray[j];
+            j+=1;
+        }
+        k+=1;
+    }
+    while(i <= middle){
+        temp[k] = thearray[i];
+        i+=1;
+        k+=1;
+    }
+    while(j <= to){
+        temp[k] = thearray[j];
+        j+=1;
+        k+=1;
+    }
+    for(let x = from; x<= to; x++){
+        /* snapshot */
+        let focus = [x];
+        let data = new Array();
+        for (const num of thearray) { data.push(num);}
+        let snapshot = new Frame(data, focus);
+        msframes.push(snapshot);
+        /* snapshot */
+        thearray[x] = temp[x];
+    }
+}
 // controls
 var override = false;
 
@@ -62,7 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
             let steps = bubblesort();
             animate(steps);
         }
-        if (sort_method == "merge"){ alert("moo");}
+        if (sort_method == "merge"){ 
+            let steps = mergesort();
+            animate(steps);
+        }
     };
     document.querySelector('#clear').onclick = function(){
         override = true;
@@ -70,145 +264,3 @@ document.addEventListener("DOMContentLoaded", () => {
         thearray = [];
     };
 });
-
-// display model
-function clearWorkSpace(){
-    let workspace = document.getElementById("workspace");
-    while (workspace.firstChild) {
-        workspace.removeChild(workspace.lastChild);
-    }
-}
-function addBlock(num, color, id) {
-    let block = document.createElement("div");
-    block.className = "block";
-    block.id = "b"+id;
-    block.style.backgroundColor = color;
-    block.style.width = "5px";
-    block.style.height = num+5+"px";
-    let pos = max - num;
-    block.style.top = pos+"px";
-    document.getElementById("workspace").appendChild(block);
-};
-function displayData(data){
-    clearWorkSpace()
-    for (let index = 0; index < data.length; index++) {
-        addBlock(data[index], "lightblue", index);
-    }
-}
-
-// animation
-class Frame {
-    constructor(data, highlighta, highlightb) {
-        this.data = data;
-        this.highlighta = highlighta;
-        this.highlightb = highlightb;
-    }
-}
-function highlight(id, color){
-    document.getElementById(id).style.backgroundColor = color;
-}
-function animate(frames){
-    var frame = 0;
-    var id = setInterval(event, 10);
-    function event(){
-        if (frame == frames.length || override) {
-            clearInterval(id);
-            alert("done");
-        } else {
-            content = frames[frame];
-            displayData(content.data);
-            for (const num of content.highlighta) {
-                highlight("b"+num, "red");
-            }
-            for (const num of content.highlightb) {
-                highlight("b"+num, "yellow");
-            }
-            frame += 1;
-        }
-    }
-}
-// sorting algorithms
-// returns multiple arrays representing a frame/step 
-
-function selectionsort(){ 
-    var frames = [];
-    // selection sort algorithm
-    let length = thearray.length;
-    //moves boundary of unsorted subarray 
-    for (let index = 0; index < length; index++){ 
-        // finds the min in unsorted array 
-        let min_index = index; 
-        for (let subindex = index+1; subindex < length; subindex++) {
-            /* snapshot */
-                let focusa = [index, min_index];
-                let focusb = [subindex];
-                let data = new Array();
-                for (const num of thearray) { data.push(num);}
-                let snapshot = new Frame(data, focusa, focusb);
-                frames.push(snapshot);
-            /* snapshot */
-            if (thearray[subindex] < thearray[min_index]) 
-                min_index = subindex;    
-        }
-        // swaps the found minimum with first element of the unsorted subarray 
-        temp = thearray[min_index];
-        thearray[min_index] = thearray[index];
-        thearray[index] = temp;
-    } 
-    frames.push(new Frame(thearray, [], []))
-    return frames;
-}
-
-function insertionsort(){
-    var frames = [];
-    // insertion sort algorithm
-    let length = thearray.length;
-    // moves boundary of unsorted subarray 
-    for (let index = 0; index < length; index++){ 
-        // moves elements before in front until the end is reached or a lower value if found
-        let valueinquestion = thearray[index];
-        let testindex = index - 1;
-        while (testindex >= 0 && thearray[testindex] > valueinquestion) { 
-            /* snapshot */
-            let focusa = [index];
-            let focusb = [testindex];
-            let data = new Array();
-            for (const num of thearray) { data.push(num);}
-            let snapshot = new Frame(data, focusa, focusb);
-            frames.push(snapshot);
-            /* snapshot */
-            thearray[testindex + 1] = thearray[testindex]; 
-            testindex -= 1;
-        } 
-        thearray[testindex + 1] = valueinquestion; 
-    } 
-    frames.push(new Frame(thearray, [], []))
-    return frames;
-}
-
-function bubblesort(){
-    var frames = [];
-    // bubble sort algorithm
-    let length = thearray.length;
-    // moves boundary of unsorted subarray 
-    for (let index = 0; index < length-1; index++){
-        for (let subindex = 0; subindex < length-index-1; subindex++) {
-            /* snapshot */
-            let focusa = [length-index-1, subindex+1];
-            let focusb = [subindex];
-            let data = new Array();
-            for (const num of thearray) { data.push(num);}
-            let snapshot = new Frame(data, focusa, focusb);
-            frames.push(snapshot);
-            /* snapshot */
-            // larger values bubble up and out of the subarray 
-            if(thearray[subindex] > thearray[subindex+1]){
-                temp = thearray[subindex];
-                thearray[subindex] = thearray[subindex+1];
-                thearray[subindex+1] = temp;
-            }
-        }
-    }
-    frames.push(new Frame(thearray, [], []))
-    return frames;
-}
