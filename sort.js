@@ -54,6 +54,7 @@ function displayData(data){
 }
 
 // animation
+var frames = [];
 class Frame {
     constructor(data, highlighted) {
         this.data = data;
@@ -63,7 +64,20 @@ class Frame {
 function highlight(id, color){
     document.getElementById(id).style.backgroundColor = color;
 }
-function animate(frames){
+function clearframes(){
+    frames = [];
+}
+function finalframe(){
+    frames.push(new Frame(thearray, []));
+}
+
+function snapshot(focus){
+    let data = new Array();
+    for (const num of thearray) { data.push(num);}
+    let frame = new Frame(data, focus);
+    frames.push(frame);
+}
+function animate(){
     var frame = 0;
     var id = setInterval(event, 10);
     function event(){
@@ -80,12 +94,13 @@ function animate(frames){
         }
     }
 }
+
 // sorting algorithms
 // return multiple arrays representing a frame/step 
 
+// selection sort algorithm
 function selectionsort(){ 
-    var frames = [];
-    // selection sort algorithm
+    clearframes()
     let length = thearray.length;
     //moves boundary of unsorted subarray 
     for (let index = 0; index < length; index++){ 
@@ -94,10 +109,7 @@ function selectionsort(){
         for (let subindex = index+1; subindex < length; subindex++) {
             /* snapshot */
                 let focus = [index, min_index, subindex];
-                let data = new Array();
-                for (const num of thearray) { data.push(num);}
-                let snapshot = new Frame(data, focus);
-                frames.push(snapshot);
+                snapshot(focus);
             /* snapshot */
             if (thearray[subindex] < thearray[min_index]) 
                 min_index = subindex;    
@@ -107,13 +119,13 @@ function selectionsort(){
         thearray[min_index] = thearray[index];
         thearray[index] = temp;
     } 
-    frames.push(new Frame(thearray, []))
+    finalframe();
     return frames;
 }
 
+// insertion sort algorithm
 function insertionsort(){
-    var frames = [];
-    // insertion sort algorithm
+    clearframes()
     let length = thearray.length;
     // moves boundary of unsorted subarray 
     for (let index = 1; index < length; index++){ 
@@ -123,33 +135,27 @@ function insertionsort(){
         while (testindex > 0 && thearray[testindex -1] > valueinquestion) { 
             /* snapshot */
             let focus = [index, testindex, testindex-1];
-            let data = new Array();
-            for (const num of thearray) { data.push(num);}
-            let snapshot = new Frame(data, focus);
-            frames.push(snapshot);
+            snapshot(focus);
             /* snapshot */
             thearray[testindex] = thearray[testindex-1]; 
             testindex -= 1;
         } 
         thearray[testindex] = valueinquestion; 
     } 
-    frames.push(new Frame(thearray, []))
+    finalframe();
     return frames;
 }
 
+// bubble sort algorithm
 function bubblesort(){
-    var frames = [];
-    // bubble sort algorithm
+    clearframes();
     let length = thearray.length;
     // moves boundary of unsorted subarray 
     for (let index = 0; index < length-1; index++){
         for (let subindex = 0; subindex < length-index-1; subindex++) {
             /* snapshot */
             let focus = [length-index-1, subindex, subindex+1];
-            let data = new Array();
-            for (const num of thearray) { data.push(num);}
-            let snapshot = new Frame(data, focus);
-            frames.push(snapshot);
+            snapshot(focus);
             /* snapshot */
             // larger values bubble up and out of the subarray 
             if(thearray[subindex] > thearray[subindex+1]){
@@ -159,19 +165,18 @@ function bubblesort(){
             }
         }
     }
-    frames.push(new Frame(thearray, []))
+    finalframe();
     return frames;
 }
 
-var msframes = [];
-
+// merge sort algorithm
 function mergesort(){
-    msframes = []
+    clearframes();
     let length = thearray.length;
     let temp = new Array(length);
     sorthelper(0, length-1, temp);
-    msframes.push(new Frame(thearray, []));
-    return msframes;
+    finalframe();
+    return frames;
 }
 // divides items into two adjacent parts
 // recursively sorts each part
@@ -211,14 +216,12 @@ function mergehelper(from, middle, to, temp){
     for(let x = from; x<= to; x++){
         /* snapshot */
         let focus = [x];
-        let data = new Array();
-        for (const num of thearray) { data.push(num);}
-        let snapshot = new Frame(data, focus);
-        msframes.push(snapshot);
+        snapshot(focus);
         /* snapshot */
         thearray[x] = temp[x];
     }
 }
+
 // controls
 var override = false;
 
