@@ -45,7 +45,7 @@ function addBlock(num, color, id) {
     let pos = max - num;
     block.style.top = pos+"px";
     document.getElementById("workspace").appendChild(block);
-};
+}
 function displayData(data){
     clearWorkSpace()
     for (let index = 0; index < data.length; index++) {
